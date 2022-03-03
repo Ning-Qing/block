@@ -6,12 +6,15 @@ import (
 )
 
 func main() {
-	bc := NewBlockChain()
+	bc := NewBlockchain()
 
 	bc.AddBlock("Send 1 BTC to NingQing")
 	bc.AddBlock("Send 2 more BTC to NingQing")
 
-	for _, block := range bc.blocks {
+	iterator := bc.Iterator()
+
+	for iterator.HasNext() {
+		block := iterator.Next()
 		fmt.Printf("Prev. hash: %x\n", block.PrevBlockHash)
 		fmt.Printf("Data: %s\n", block.Data)
 		fmt.Printf("Hash: %x\n", block.Hash)
