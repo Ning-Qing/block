@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/gob"
 	"log"
 	"time"
@@ -9,10 +10,24 @@ import (
 
 type Block struct {
 	Timestamp     int64 // 创建区块的当前事件戳
-	Data          []byte
+	Transactions  []*Transaction
 	PrevBlockHash []byte // 上一个区块的hash
 	Hash          []byte
 	Nonce         int // 工作量证明产生的随机值
+}
+
+// HashTransactions返回块中Transactions的哈希值
+// 使用交易的ID计算hash
+func (b *Block) HashTransactions() []byte {
+	var txHashes [][]byte
+	var txHash [32]byte
+
+	for _, tx := range b.Transactions {
+		txHashes = append(txHashes, tx.ID)
+	}
+	txHash = sha256.Sum256(bytes.Join(txHashes, []byte{}))
+
+	return txHash[:]
 }
 
 // Serialize 序列化区块
@@ -40,10 +55,10 @@ func DeserializeBlock(d []byte) *Block {
 }
 
 // NewBlock 创建区块
-func NewBlock(data string, prevBlockHash []byte) *Block {
+func NewBlock(transactions []*Transaction, prevBlockHash []byte) *Block {
 	block := &Block{
 		Timestamp:     time.Now().Unix(),
-		Data:          []byte(data),
+		Transactions:  transactions,
 		PrevBlockHash: prevBlockHash,
 		Hash:          []byte{},
 	}
@@ -57,6 +72,6 @@ func NewBlock(data string, prevBlockHash []byte) *Block {
 }
 
 // NewGenesisBlock 创建创世区块
-func NewGenesisBlock() *Block {
-	return NewBlock("GenesisBlock", []byte{})
+func NewGenesisBlock(coinbase *Transaction) *Block {
+	return NewBlock([]*Transaction{coinbase}, []byte{})
 }

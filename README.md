@@ -15,3 +15,13 @@ Hashcash工作量证明算法,分为以下步骤
 
 ## Part 3 持久化
 ![持久化](./static/持久化.svg)
+
+## Part 4 交易
+
+Transactions:
+ - Coinbase 创世块交易，只有输出没有输入
+ - UTXOTransaction 点对点的交易, 由一个或多个未使用输出作为输入产生一个或两个输出
+
+Balance:
+- UTXO模型
+- 余额通过遍历整个交易记录得来
