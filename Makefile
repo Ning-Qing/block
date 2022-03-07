@@ -6,12 +6,17 @@ run:
 build:
 	go build -o ./build/block .
 
+.PHONY: clear
+clear:
+	rm -rf wallet.dat block.db
+
 .PHONY: test
+createwallet:
+	build/block createwallet
 createblockchain:
-	build/block createblockchain -address ningqing
-	build/block getbalance -address ningqing
+	build/block createblockchain -address $(address)
+	build/block getbalance -address $(address)
 send:
-	build/block send -from ningqing -to vonevone -amount 6
+	build/block send -from $(from) -to $(to) -amount $(amount)
 getbalance:
-	build/block getbalance -address ningqing
-	build/block getbalance -address vonevone
+	build/block getbalance -address $(address)

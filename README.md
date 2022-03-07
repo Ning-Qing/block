@@ -25,3 +25,70 @@ Transactions:
 Balance:
 - UTXO模型
 - 余额通过遍历整个交易记录得来
+
+## Part 5 地址与钱包
+
+### 地址
+
+### 密钥对
+
+### 签名
+
+### 算法
+- ecdsa 椭圆曲线数字签名算法
+- sha256、ripemd160 加密算法
+- base58 编码算法
+
+# 
+```go
+// wallet
+// NewWallet 创建一个钱包
+func NewWallet() *Wallet {
+	private, pubilc := newKeyPair()
+	return &Wallet{
+		PrivateKey: private,
+		PublicKey:  pubilc,
+	}
+}
+// newKeyPair 创建密钥对
+// 公钥是椭圆上x1,x2,x3.....,y1,y2,y3.......的组合
+func newKeyPair() (ecdsa.PrivateKey, []byte) {
+	curve := elliptic.P256()
+	private, err := ecdsa.GenerateKey(curve, rand.Reader)
+	if err != nil {
+		log.Panic(err)
+	}
+	pubKey := append(private.PublicKey.X.Bytes(), private.Y.Bytes()...)
+	return *private, pubKey
+}
+
+// sign
+// privKey wallet.privatekey
+// txCopy.id transaction.id
+r,s,err := ecdsa.Sign(rand.Reader,&privKey,txCopy.ID)
+if err!= nil {
+	log.Panic(err)
+}
+signature := append(r.Bytes(),s.Bytes()...)
+tx.Vin[inID].Signature = signature
+
+// verify
+// pubkey wallet.pubilc
+r := big.Int{}
+s := big.Int{}
+sigLen := len(vin.Signature)
+r.SetBytes(vin.Signature[:(sigLen / 2)])
+s.SetBytes(vin.Signature[(sigLen / 2):])
+
+x := big.Int{}
+y := big.Int{}
+keyLen := len(vin.PubKey)
+x.SetBytes(vin.PubKey[:(keyLen / 2)])
+y.SetBytes(vin.PubKey[(keyLen / 2):])
+
+rawPubKey := ecdsa.PublicKey{curve, &x, &y}
+if ecdsa.Verify(&rawPubKey, txCopy.ID, &r, &s) == false {
+ return false
+}
+
+````
